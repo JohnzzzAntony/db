@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/typography";
+
+:root {
+  --background: #f7f8fa;
+  --surface: #ffffff;
+  --foreground: #14202e;
+  --muted: #5b6b7c;
+  --border: #dde3ea;
+  --brand: #0f6e78;
+  --brand-strong: #0a525a;
+  --brand-soft: #e3f2f3;
+  --accent: #b4532a;
+  --danger: #b42318;
+  --warn-bg: #fff6e0;
+  --warn-fg: #7a4b00;
+  --ok-bg: #e6f4ea;
+  --ok-fg: #1d6b35;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0e141b;
+    --surface: #151d26;
+    --foreground: #e6edf3;
+    --muted: #9aa9b8;
+    --border: #283543;
+    --brand: #4fb3bc;
+    --brand-strong: #7cd0d7;
+    --brand-soft: #14313a;
+    --accent: #e08a62;
+    --danger: #f97066;
+    --warn-bg: #3a2c0b;
+    --warn-fg: #f5c46b;
+    --ok-bg: #0f2e1b;
+    --ok-fg: #7fd99b;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-fg: var(--warn-fg);
+  --color-ok-bg: var(--ok-bg);
+  --color-ok-fg: var(--ok-fg);
+  --font-sans: var(--font-sans-face), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif-face), ui-serif, Georgia, serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-border bg-surface p-5 shadow-sm;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-brand-soft disabled:opacity-60;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-lg border border-danger px-3 py-1.5 text-sm font-medium text-danger transition hover:bg-danger hover:text-white;
+  }
+  .input {
+    @apply w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-brand;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium;
+  }
+  .link {
+    @apply font-medium text-brand underline-offset-2 hover:underline;
+  }
+  .table {
+    @apply w-full text-left text-sm;
+  }
+  .table th {
+    @apply border-b border-border px-3 py-2 font-semibold text-muted;
+  }
+  .table td {
+    @apply border-b border-border px-3 py-2 align-top;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+}
