@@ -43,6 +43,25 @@ After the first sign-in as admin:
 3. **Admin → Users**: promote faculty.
 4. **Admin → Paper review & discovery**: import and verify previous-year papers.
 
+## Deploy to Vercel
+
+1. **Database:** create a Postgres database (Vercel → Storage → Neon, or any hosted Postgres) and copy its **pooled** connection string.
+2. **Import:** in Vercel choose **Add New → Project**, import `JohnzzzAntony/db`, and keep the detected Next.js settings. The `vercel-build` script runs `prisma generate`, `prisma migrate deploy` and `next build`, so migrations apply on every deploy.
+3. **Environment variables** (Project → Settings → Environment Variables):
+
+   | Name | Value |
+   |------|-------|
+   | `DATABASE_URL` | the pooled Postgres URL |
+   | `NVIDIA_API_KEY` | your NVIDIA key (study material) |
+   | `ANTHROPIC_API_KEY` | optional; needed for reading uploaded papers and web discovery |
+   | `MAX_UPLOAD_MB` | `4` (Vercel rejects request bodies over 4.5 MB) |
+
+4. **Deploy**, then seed once from your computer against the same database:
+   `DATABASE_URL="<pooled url>" SEED_ADMIN_EMAIL="you@college.in" SEED_ADMIN_PASSWORD="<12+ chars>" npm run db:seed`
+5. Sign in with that admin account and confirm the university and syllabus under **Admin**.
+
+Every push to `main` redeploys. Study generation and paper extraction can run for a few minutes; the routes allow up to 300 s, which needs Vercel's Fluid compute (on by default for new projects).
+
 ## Roles
 
 | Role | Can |
