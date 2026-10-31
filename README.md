@@ -39,6 +39,14 @@ npm run dev              # http://localhost:3000
 
 Study generation can take 1–2 minutes. The API route allows up to 300 s, which needs Vercel's Fluid compute (on by default for new projects).
 
+## Deploy to Railway
+
+1. On railway.com choose **New Project → Deploy from GitHub repo** and pick `JohnzzzAntony/db`. Railway detects Next.js, runs `npm run build`, then `npm start` on the port it provides.
+2. Under **Variables**, add `ANTHROPIC_API_KEY` and `ACCESS_CODE`. Add `ANTHROPIC_MODEL` only if you want a different model than `claude-opus-5-5`. Saving variables redeploys the app.
+3. Under **Settings → Networking**, click **Generate Domain** to get the public link.
+
+Every push to `main` redeploys. If generation fails, the error on screen names the setting to fix; the full error is in **Deployments → View logs**, on a line starting `Anthropic API error`.
+
 ## Security notes
 
 - **The Claude API key never reaches the browser.** Only `/api/study` uses it.
