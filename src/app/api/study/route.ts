@@ -1,8 +1,8 @@
-import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { env } from "@/lib/env";
-import { aiEnabled, AiGenerationError, AiUnavailableError } from "@/lib/ai/client";
-import { allowRequest } from "@/lib/rate-limit";
+import { AiGenerationError, AiUnavailableError } from "@/lib/ai/client";
+import { studyProvider } from "@/lib/ai/provider";
+import { errorResponse as error, guardAiRequest } from "@/lib/guard";
 import { generateStudyDocument } from "@/lib/study/generate";
 import { MARKS_OPTIONS, STUDY_MODES, type Marks } from "@/lib/study/plan";
 import { SUBJECT_NAMES } from "@/lib/data/subjects";
@@ -17,23 +17,10 @@ const bodySchema = z.object({
   marks: z.number().refine((m): m is Marks => (MARKS_OPTIONS as readonly number[]).includes(m), "Choose marks"),
 });
 
-const error = (status: number, message: string) => Response.json({ error: message }, { status });
-
-function codeMatches(given: string | null) {
-  if (!env.ACCESS_CODE) return true;
-  const a = Buffer.from(given ?? "");
-  const b = Buffer.from(env.ACCESS_CODE);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
-
 export async function POST(req: Request) {
-  if (!codeMatches(req.headers.get("x-access-code"))) return error(401, "Enter the access code your college gave you (Settings).");
-  if (!aiEnabled()) return error(503, "AI is not configured on this server.");
-
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  if (!allowRequest(ip, env.AI_HOURLY_LIMIT)) {
-    return error(429, `You have reached ${env.AI_HOURLY_LIMIT} generations this hour. Please try again later.`);
-  }
+  if (!studyProvider()) return error(503, "AI is not configured on this server.");
+  const blocked = guardAiRequest(req, "study", env.AI_HOURLY_LIMIT);
+  if (blocked) return blocked;
 
   const parsed = bodySchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return error(400, parsed.error.issues[0]?.message ?? "Invalid request");

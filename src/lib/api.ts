@@ -3,7 +3,7 @@
 import { getSetting } from "@/lib/store";
 import type { StudyContent } from "@/lib/study/schema";
 
-export type ServerStatus = { ai: boolean; accessCodeRequired: boolean };
+export type ServerStatus = { ai: boolean; chat?: boolean; webResearch?: boolean; accessCodeRequired: boolean };
 
 export async function fetchStatus(): Promise<ServerStatus> {
   try {
@@ -14,21 +14,33 @@ export async function fetchStatus(): Promise<ServerStatus> {
   }
 }
 
-export async function requestStudy(input: { topic: string; subject: string | null; mode: string; marks: number }, signal?: AbortSignal) {
+async function post<T>(url: string, body: unknown, signal?: AbortSignal): Promise<T> {
   const code = await getSetting<string>("accessCode", "");
   let res: Response;
   try {
-    res = await fetch("/api/study", {
+    res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-access-code": code },
-      body: JSON.stringify(input),
+      body: JSON.stringify(body),
       signal,
     });
   } catch (e) {
     if ((e as Error).name === "AbortError") throw e;
     throw new Error("Couldn't reach the server. Check your internet connection.");
   }
-  const body = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(body?.error ?? `The server returned an error (${res.status}).`);
-  return body as { content: StudyContent; model: string };
+  const json = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(json?.error ?? `The server returned an error (${res.status}).`);
+  return json as T;
 }
+
+export type ChatTurn = { role: "user" | "assistant"; content: string; sources?: { title: string; url: string }[] };
+
+export const requestChat = (messages: ChatTurn[], signal?: AbortSignal) =>
+  post<{ answer: string; sources: { title: string; url: string }[] }>(
+    "/api/chat",
+    { messages: messages.map(({ role, content }) => ({ role, content })) },
+    signal,
+  );
+
+export const requestStudy = (input: { topic: string; subject: string | null; mode: string; marks: number }, signal?: AbortSignal) =>
+  post<{ content: StudyContent; model: string }>("/api/study", input, signal);

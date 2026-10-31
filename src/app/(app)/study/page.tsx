@@ -79,7 +79,7 @@ function StudyGenerator() {
       <div className="grid gap-6 lg:grid-cols-5">
         <section className="card lg:col-span-3" aria-label="Generate">
           {status && !status.ai ? (
-            <p className="text-sm text-muted">AI is not set up on this server yet (ANTHROPIC_API_KEY is missing). You can still use Subjects, Question Papers and Clinical Records.</p>
+            <p className="text-sm text-muted">AI is not set up on this server yet (set NVIDIA_API_KEY). You can still use Subjects, Question Papers and Clinical Records.</p>
           ) : (
             <form onSubmit={onSubmit} className="space-y-5">
               <div>

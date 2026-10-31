@@ -4,6 +4,7 @@ import { NavLinks } from "./nav-links";
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/study", label: "Study Generator" },
+  { href: "/tutor", label: "Ask the Tutor" },
   { href: "/subjects", label: "Subjects" },
   { href: "/papers", label: "Question Papers" },
   { href: "/clinical", label: "Clinical Records" },

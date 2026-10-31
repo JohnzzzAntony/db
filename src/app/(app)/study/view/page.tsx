@@ -61,6 +61,7 @@ function StudyView() {
     { href: "#images", label: "Pictures" },
     ...(c.memoryAids.length ? [{ href: "#aids", label: "Memory aids" }] : []),
     ...(c.vivaQuestions.length ? [{ href: "#viva", label: "Flashcards" }] : []),
+    { href: "#refs", label: "Sources" },
   ];
 
   return (
@@ -106,6 +107,9 @@ function StudyView() {
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <h2 id={`sec-${i}`} className="scroll-mt-16 font-serif text-xl font-semibold">{s.heading}</h2>
                 <Badge variant={ev.variant}>{ev.label}</Badge>
+                {s.references.map((r) => (
+                  <a key={r} href={`#ref-${r + 1}`} className="text-xs text-brand">[{r + 1}]</a>
+                ))}
               </div>
               {s.verificationNote ? (
                 <p className="mb-2 rounded-md bg-warn-bg px-3 py-1.5 text-xs text-warn-fg">Verify: {s.verificationNote}</p>
@@ -187,6 +191,26 @@ function StudyView() {
             </ol>
           </section>
         ) : null}
+
+        <section aria-labelledby="refs">
+          <h2 id="refs" className="mb-2 scroll-mt-16 font-serif text-xl font-semibold">Sources</h2>
+          {c.references.length ? (
+            <ol className="list-decimal space-y-1 pl-5 text-sm">
+              {c.references.map((r, i) => (
+                <li key={i} id={`ref-${i + 1}`}>
+                  {r.kind === "LIBRARY" && r.url ? (
+                    <a href={r.url} target="_blank" rel="noopener noreferrer" className="link break-words">{r.title}</a>
+                  ) : (
+                    r.title
+                  )}
+                  {r.kind === "LIBRARY" && r.publisher ? <span className="text-muted"> · {r.publisher}</span> : null}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="text-sm text-muted">No web sources were cited for this answer. Check it against your textbook.</p>
+          )}
+        </section>
       </div>
       <p className="mt-4 text-xs text-muted">Generated {new Date(doc.createdAt).toLocaleString("en-IN")} with {doc.model}. Saved on this device only.</p>
     </article>
