@@ -1,13 +1,9 @@
 import { z } from "zod";
 
 const schema = z.object({
-  // Study material comes from NVIDIA by default; Anthropic is an optional alternative.
-  NVIDIA_API_KEY: z.string().optional(),
-  NVIDIA_MODEL: z.string().default("z-ai/glm-5.3-flash"),
+  // Claude writes the study material. Without a key the rest of the site still works.
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default("claude-opus-5-5"),
-  /** Which provider writes study material. Defaults to NVIDIA when its key is set. */
-  STUDY_AI_PROVIDER: z.enum(["nvidia", "anthropic"]).optional(),
   AI_EFFORT: z.enum(["low", "medium", "high", "xhigh", "max"]).default("high"),
   /** Shared code students enter once; without it anyone who finds the site can spend the AI quota. */
   ACCESS_CODE: z.string().optional(),

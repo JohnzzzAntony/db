@@ -1,9 +1,9 @@
 import { env } from "@/lib/env";
-import { studyProvider } from "@/lib/ai/provider";
+import { aiEnabled } from "@/lib/ai/client";
 
 export const dynamic = "force-dynamic";
 
 /** What the browser needs to know before showing the study form. */
 export function GET() {
-  return Response.json({ ai: Boolean(studyProvider()), accessCodeRequired: Boolean(env.ACCESS_CODE) });
+  return Response.json({ ai: aiEnabled(), accessCodeRequired: Boolean(env.ACCESS_CODE) });
 }

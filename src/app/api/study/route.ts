@@ -1,8 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { env } from "@/lib/env";
-import { AiGenerationError, AiUnavailableError } from "@/lib/ai/client";
-import { studyProvider } from "@/lib/ai/provider";
+import { aiEnabled, AiGenerationError, AiUnavailableError } from "@/lib/ai/client";
 import { allowRequest } from "@/lib/rate-limit";
 import { generateStudyDocument } from "@/lib/study/generate";
 import { MARKS_OPTIONS, STUDY_MODES, type Marks } from "@/lib/study/plan";
@@ -29,7 +28,7 @@ function codeMatches(given: string | null) {
 
 export async function POST(req: Request) {
   if (!codeMatches(req.headers.get("x-access-code"))) return error(401, "Enter the access code your college gave you (Settings).");
-  if (!studyProvider()) return error(503, "AI is not configured on this server.");
+  if (!aiEnabled()) return error(503, "AI is not configured on this server.");
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowRequest(ip, env.AI_HOURLY_LIMIT)) {

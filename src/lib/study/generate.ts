@@ -1,7 +1,5 @@
 import "server-only";
 import { generateStructured } from "@/lib/ai/client";
-import { nvidiaStructured } from "@/lib/ai/nvidia";
-import { studyProvider } from "@/lib/ai/provider";
 import { buildStudyPlan, MODE_LABELS, type Marks, type StudyModeKey } from "./plan";
 import { studyOutputSchema, type StudyContent } from "./schema";
 import { resolveReferences } from "./references";
@@ -56,10 +54,7 @@ Style: ${plan.style}
 
 No library excerpts or textbook list are supplied: leave every sourceIds and textbookIds list empty, and never mark a section SOURCE_SUPPORTED.`;
 
-  const { data, model } =
-    studyProvider() === "nvidia"
-      ? await nvidiaStructured({ schema: studyOutputSchema, system: SYSTEM, user: request })
-      : await generateStructured({ schema: studyOutputSchema, system: SYSTEM, content: [{ type: "text", text: request }] });
+  const { data, model } = await generateStructured({ schema: studyOutputSchema, system: SYSTEM, content: [{ type: "text", text: request }] });
 
   // With no sources, this drops any ids the model invented and downgrades unsupported claims.
   return { content: resolveReferences(data, [], [], plan.wordTarget, opts), model };

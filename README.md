@@ -19,14 +19,14 @@ A study app for **Post Basic B.Sc. Nursing** students at Koshys College of Nursi
 | What | Where |
 |------|-------|
 | Study documents, saved papers, clinical progress, access code | The student's browser (IndexedDB). It never leaves the device. |
-| AI requests | Sent to `/api/study`, which calls NVIDIA with the server-side key and returns the result. Nothing is stored on the server. |
+| AI requests | Sent to `/api/study`, which calls the Claude API with the server-side key and returns the result. Nothing is stored on the server. |
 
 Browser data is lost if the student clears site data, uses private mode or changes device, so the app asks students to download a backup from **Settings**.
 
 ## Run locally
 
 ```bash
-cp .env.example .env     # set NVIDIA_API_KEY and ACCESS_CODE
+cp .env.example .env     # set ANTHROPIC_API_KEY and ACCESS_CODE
 npm install
 npm run dev              # http://localhost:3000
 ```
@@ -34,15 +34,15 @@ npm run dev              # http://localhost:3000
 ## Deploy to Vercel
 
 1. On vercel.com choose **Add New → Project**, import `JohnzzzAntony/db`, and keep the detected Next.js settings.
-2. Under **Environment Variables**, add `NVIDIA_API_KEY` and `ACCESS_CODE`. Share the access code with students only.
+2. Under **Environment Variables**, add `ANTHROPIC_API_KEY` (from console.anthropic.com) and `ACCESS_CODE`. Share the access code with students only.
 3. Deploy. No database is needed.
 
 Study generation can take 1–2 minutes. The API route allows up to 300 s, which needs Vercel's Fluid compute (on by default for new projects).
 
 ## Security notes
 
-- **The NVIDIA key never reaches the browser.** Only `/api/study` uses it.
-- **Without `ACCESS_CODE`, anyone with the link can use up your AI quota.** The code is compared in constant time.
+- **The Claude API key never reaches the browser.** Only `/api/study` uses it.
+- **Without `ACCESS_CODE`, anyone with the link can use up your Claude credits.** The code is compared in constant time.
 - **The per-device limit is best effort.** `AI_HOURLY_LIMIT` is counted in memory on each server instance, so use a shared store such as Upstash Redis for a public launch.
 - **Rotate any API key that has been pasted into chats, documents or screenshots.**
 

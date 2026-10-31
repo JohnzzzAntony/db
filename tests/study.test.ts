@@ -64,12 +64,3 @@ describe("resolveReferences", () => {
     expect(out.caveats[0]).toMatch(/No verified library sources/);
   });
 });
-
-describe("studyOutputSchema", () => {
-  it("converts to JSON Schema for providers without native structured output", async () => {
-    const { z } = await import("zod");
-    const { studyOutputSchema } = await import("@/lib/study/schema");
-    const json = z.toJSONSchema(studyOutputSchema) as { properties: Record<string, unknown> };
-    expect(Object.keys(json.properties)).toEqual(expect.arrayContaining(["title", "sections", "textbookIds"]));
-  });
-});
