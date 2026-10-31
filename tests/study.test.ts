@@ -10,6 +10,12 @@ describe("buildStudyPlan", () => {
     expect(buildStudyPlan("UNIVERSITY_EXAM", 5).flowchart).toBe(false);
     expect(buildStudyPlan("UNIVERSITY_EXAM", 10).flowchart).toBe(true);
   });
+  it("asks for more diagrams in longer answers and none in viva", () => {
+    expect(buildStudyPlan("UNIVERSITY_EXAM", 2).diagrams).toBe(0);
+    expect(buildStudyPlan("UNIVERSITY_EXAM", 15).diagrams).toBe(2);
+    expect(buildStudyPlan("DETAILED_RESEARCH", 10).diagrams).toBe(3);
+    expect(buildStudyPlan("VIVA", 10).diagrams).toBe(0);
+  });
   it("sizes viva practice by marks", () => {
     expect(buildStudyPlan("VIVA", 2).vivaQuestions).toBe(5);
     expect(buildStudyPlan("VIVA", 20).vivaQuestions).toBe(20);
@@ -23,7 +29,7 @@ describe("buildStudyPlan", () => {
 const section = (over: Partial<StudyOutput["sections"][number]>): StudyOutput["sections"][number] => ({
   key: "INTRODUCTION", heading: "A. Introduction", markdown: "x", evidence: "SOURCE_SUPPORTED", sourceIds: [], verificationNote: null, ...over,
 });
-const base: StudyOutput = { title: "CHF", sections: [], flowchart: null, memoryAids: [], vivaQuestions: [], textbookIds: [], caveats: [] };
+const base: StudyOutput = { title: "CHF", sections: [], flowchart: null, diagrams: [], imageSearches: [], memoryAids: [], vivaQuestions: [], textbookIds: [], caveats: [] };
 const chunk = (documentId: string, page: number | null) => ({
   id: `c-${documentId}-${page}`, documentId, title: `Doc ${documentId}`, authors: null, publisher: null, edition: null, year: null, url: null, page,
 });

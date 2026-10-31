@@ -62,6 +62,8 @@ export function resolveReferences(
     title: data.title,
     sections,
     flowchart: data.flowchart,
+    diagrams: data.diagrams.slice(0, 4),
+    imageSearches: data.imageSearches.slice(0, 4),
     memoryAids: data.memoryAids,
     vivaQuestions: data.vivaQuestions,
     caveats,

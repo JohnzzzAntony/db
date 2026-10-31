@@ -36,12 +36,10 @@ async function chat(messages: ChatMessage[], maxTokens: number): Promise<string>
       body: JSON.stringify({
         model: env.NVIDIA_MODEL,
         messages,
-        temperature: 0.6,
-        top_p: 0.95,
+        temperature: 0.5,
+        top_p: 1,
         max_tokens: maxTokens,
         stream: false,
-        // Reasoning comes back separately (reasoning_content), so content stays the answer.
-        chat_template_kwargs: { enable_thinking: true },
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });

@@ -55,6 +55,7 @@ export type StudyPlan = {
   sections: SectionKey[];
   vivaQuestions: number;
   flowchart: boolean;
+  diagrams: number;
   memoryAids: boolean;
   style: string;
 };
@@ -68,6 +69,7 @@ export function buildStudyPlan(mode: StudyModeKey, marks: Marks): StudyPlan {
         sections: exam.sections,
         vivaQuestions: 0,
         flowchart: marks >= 10,
+        diagrams: marks >= 10 ? 2 : marks >= 5 ? 1 : 0,
         memoryAids: false,
         style:
           "Write as a model answer a student can reproduce in a university answer script: definition first, numbered headings, short points, tables where they save words, a labelled flowchart for pathophysiology when marks allow, and a one-paragraph conclusion.",
@@ -79,6 +81,7 @@ export function buildStudyPlan(mode: StudyModeKey, marks: Marks): StudyPlan {
         sections: ["KEY_POINTS", ...exam.sections.filter((s) => s !== "CONCLUSION" && s !== "KEY_POINTS")],
         vivaQuestions: 0,
         flowchart: marks >= 10,
+        diagrams: 1,
         memoryAids: true,
         style:
           "Bullet points only: definitions, keywords in bold, classic signs, key investigations, priority nursing actions. Add mnemonics only when they are genuinely in common use or clearly marked as a memory aid you made up.",
@@ -90,6 +93,7 @@ export function buildStudyPlan(mode: StudyModeKey, marks: Marks): StudyPlan {
         sections: FULL,
         vivaQuestions: 5,
         flowchart: true,
+        diagrams: 3,
         memoryAids: false,
         style:
           "Comprehensive academic explanation in prose and structured lists, covering every applicable section in depth, with each claim tied to a library excerpt where one exists.",
@@ -100,6 +104,7 @@ export function buildStudyPlan(mode: StudyModeKey, marks: Marks): StudyPlan {
         sections: ["INTRODUCTION"],
         vivaQuestions: VIVA_COUNT[marks],
         flowchart: false,
+        diagrams: 0,
         memoryAids: false,
         style:
           "Oral-examination practice: a 3-4 line overview, then questions an examiner would ask in increasing difficulty, each with the answer a student should say.",

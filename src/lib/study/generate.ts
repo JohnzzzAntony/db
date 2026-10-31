@@ -24,6 +24,7 @@ Accuracy rules (these override style and length):
 Structure rules:
 - Use the requested section keys in order. Omit a section that genuinely does not apply to the topic (e.g. anatomy for "play therapy") and use OTHER with a fitting heading for topic-specific sections a non-disease topic needs (types, principles, methods, advantages).
 - Section markdown must not repeat the section heading.
+- Diagrams: write valid Mermaid using only \`flowchart TD\` or \`mindmap\`. Keep labels short (under 6 words), put every flowchart label in double quotes like A["Reduced cardiac output"] --> B["Fluid retention"], and use no other diagram types, styling or HTML.
 - Use Indian clinical context (units such as mg/dL, Indian national programmes) where relevant.`;
 
 function sourceBlock(chunks: Awaited<ReturnType<typeof searchLibrary>>) {
@@ -78,6 +79,8 @@ Marks: ${opts.marks}
 Length: ${plan.wordTarget}
 Section keys, in order: ${plan.sections.join(", ")}
 Flowchart: ${plan.flowchart ? "include if the topic has a process or pathophysiology" : "null"}
+Diagrams: ${plan.diagrams ? `${plan.diagrams} Mermaid diagram(s) that make the topic easier to picture (e.g. a mind map of the whole topic, a flowchart of pathophysiology or a nursing process)` : "empty list"}
+Image searches: 2-4 phrases for real labelled images (anatomy, equipment, positions, signs) a student should look at
 Memory aids: ${plan.memoryAids ? "3-6 items" : "empty list"}
 Viva questions: ${plan.vivaQuestions ? `${plan.vivaQuestions} question-answer pairs` : "empty list"}
 Style: ${plan.style}

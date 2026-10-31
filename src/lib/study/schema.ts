@@ -54,6 +54,18 @@ export const studyOutputSchema = z.object({
     .object({ title: z.string(), steps: z.array(z.string()) })
     .nullable()
     .describe("Step-by-step pathophysiology or process flow, when applicable"),
+  diagrams: z
+    .array(
+      z.object({
+        title: z.string(),
+        mermaid: z.string().describe("Mermaid source: `flowchart TD` or `mindmap` only"),
+        caption: z.string().describe("One line telling the student what the diagram shows"),
+      }),
+    )
+    .describe("Simple teaching diagrams drawn with Mermaid"),
+  imageSearches: z
+    .array(z.string())
+    .describe("2-4 short search phrases for real labelled images worth looking at, e.g. 'heart chambers labelled diagram'"),
   memoryAids: z.array(z.string()),
   vivaQuestions: z.array(z.object({ question: z.string(), answer: z.string() })),
   textbookIds: z.array(z.string()).describe("Ids like T1 of recommended textbooks relevant to this topic"),
@@ -84,8 +96,10 @@ export type ResolvedReference =
       year: number | null;
     };
 
-/** Stored in StudyDocument.content. */
-export type StudyContent = Omit<StudyOutput, "textbookIds" | "sections"> & {
+/** Stored in StudyDocument.content. Documents made before diagrams existed lack those fields. */
+export type StudyContent = Omit<StudyOutput, "textbookIds" | "sections" | "diagrams" | "imageSearches"> & {
+  diagrams?: StudyOutput["diagrams"];
+  imageSearches?: string[];
   sections: (StudyOutput["sections"][number] & { references: number[] })[];
   references: ResolvedReference[];
   plan: { wordTarget: string; mode: string; marks: number };

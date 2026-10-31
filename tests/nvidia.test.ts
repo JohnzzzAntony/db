@@ -25,11 +25,11 @@ describe("nvidiaStructured", () => {
     const fetchMock = vi.fn(async () => reply('{"title":"CHF"}'));
     vi.stubGlobal("fetch", fetchMock);
     const out = await mod.nvidiaStructured({ schema, system: "s", user: "u" });
-    expect(out).toEqual({ data: { title: "CHF" }, model: "nvidia/nemotron-3.5-bolt-e4b" });
+    expect(out).toEqual({ data: { title: "CHF" }, model: "z-ai/glm-5.3-flash" });
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("https://integrate.api.nvidia.com/v1/chat/completions");
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer test-key");
-    expect(JSON.parse(init.body as string).model).toBe("nvidia/nemotron-3.5-bolt-e4b");
+    expect(JSON.parse(init.body as string).model).toBe("z-ai/glm-5.3-flash");
   });
 
   it("retries once with the validation problem, then succeeds", async () => {
