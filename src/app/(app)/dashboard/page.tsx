@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/dal";
-import { aiEnabled } from "@/lib/ai/client";
+import { studyProvider } from "@/lib/ai/provider";
 import { PageHeader } from "@/components/page-header";
 import { Badge, VerificationBadge } from "@/components/badges";
 import { MODE_LABELS } from "@/lib/study/plan";
@@ -49,9 +49,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     <>
       <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} description="Your academic context decides which subjects, papers and syllabus the AI uses." />
       {denied ? <p role="alert" className="mb-4 rounded-lg bg-warn-bg px-3 py-2 text-sm text-warn-fg">You don&apos;t have access to that page.</p> : null}
-      {!aiEnabled() ? (
+      {!studyProvider() ? (
         <p className="mb-4 rounded-lg bg-warn-bg px-3 py-2 text-sm text-warn-fg">
-          AI generation is not configured on this server (ANTHROPIC_API_KEY is missing). Browsing, papers and analysis still work.
+          AI generation is not configured on this server (set ANTHROPIC_API_KEY or NVIDIA_API_KEY). Browsing, papers and analysis still work.
         </p>
       ) : null}
 

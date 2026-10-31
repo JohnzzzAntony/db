@@ -24,7 +24,7 @@ The spec forbids invented facts and references. The platform enforces that in co
 
 ## Stack
 
-Next.js 16 (App Router, server actions), TypeScript, Tailwind CSS 4, PostgreSQL + Prisma 7 (`@prisma/adapter-pg`), Claude API (`@anthropic-ai/sdk`) with structured outputs, server-side refusal fallback and web search. Retrieval uses PostgreSQL full-text search (GIN index), so no separate vector store or embedding key is needed.
+Next.js 16 (App Router, server actions), TypeScript, Tailwind CSS 4, PostgreSQL + Prisma 7 (`@prisma/adapter-pg`), Claude API (`@anthropic-ai/sdk`) with structured outputs, server-side refusal fallback and web search. Study material can instead be written by an NVIDIA-hosted model (`NVIDIA_API_KEY`, default `nvidia/nemotron-3.5-bolt-e4b`). The same reference checks apply to its output, which is validated against the schema with one corrective retry. Retrieval uses PostgreSQL full-text search (GIN index), so no separate vector store or embedding key is needed.
 
 ## Getting started
 

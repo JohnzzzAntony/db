@@ -1,6 +1,8 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { generateStructured } from "@/lib/ai/client";
+import { nvidiaStructured } from "@/lib/ai/nvidia";
+import { studyProvider } from "@/lib/ai/provider";
 import { searchLibrary } from "@/lib/library/search";
 import { buildStudyPlan, MODE_LABELS, type Marks, type StudyModeKey } from "./plan";
 import { studyOutputSchema } from "./schema";
@@ -87,11 +89,10 @@ ${textbooks.length ? textbooks.map((t, i) => `T${i + 1}: ${t.title} — ${t.auth
 
 ${sourceBlock(chunks)}`;
 
-  const { data, model } = await generateStructured({
-    schema: studyOutputSchema,
-    system: SYSTEM,
-    content: [{ type: "text", text: request }],
-  });
+  const { data, model } =
+    studyProvider() === "nvidia"
+      ? await nvidiaStructured({ schema: studyOutputSchema, system: SYSTEM, user: request })
+      : await generateStructured({ schema: studyOutputSchema, system: SYSTEM, content: [{ type: "text", text: request }] });
 
   const content = resolveReferences(data, chunks, textbooks, plan.wordTarget, opts);
 

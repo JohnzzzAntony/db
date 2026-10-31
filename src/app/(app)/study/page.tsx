@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/dal";
-import { aiEnabled } from "@/lib/ai/client";
+import { studyProvider } from "@/lib/ai/provider";
 import { PageHeader } from "@/components/page-header";
 import { MODE_LABELS } from "@/lib/study/plan";
 import { StudyForm } from "./study-form";
@@ -38,7 +38,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
       />
       <div className="grid gap-6 lg:grid-cols-5">
         <section className="card lg:col-span-3" aria-label="Generate">
-          {aiEnabled() ? (
+          {studyProvider() ? (
             <StudyForm subjects={subjects.map((s) => ({ id: s.id, label: `${s.name} (${s.academicYear.label})` }))} defaults={sp} />
           ) : (
             <p className="text-sm text-muted">AI generation is not configured on this server.</p>
