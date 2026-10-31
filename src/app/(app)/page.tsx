@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { REQUIREMENTS } from "@/lib/data/requirements";
 import { getAll, getSetting, type StudyDoc } from "@/lib/store";
@@ -9,6 +10,7 @@ import { MODE_LABELS, type StudyModeKey } from "@/lib/study/plan";
 const STARTERS = ["Congestive Heart Failure", "Normal newborn assessment", "Stages of labour", "Play therapy", "Diabetes mellitus"];
 
 export default function HomePage() {
+  const router = useRouter();
   const [docs, setDocs] = useState<StudyDoc[] | null>(null);
   const [clinicalPct, setClinicalPct] = useState<number | null>(null);
   const [storageOk, setStorageOk] = useState(true);
@@ -38,6 +40,21 @@ export default function HomePage() {
         <p className="mt-3 max-w-2xl text-muted">
           Exam-ready answers with diagrams and flashcards, previous-year papers by subject, and your clinical record checklist. No account needed.
         </p>
+        <form
+          action="/study"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const topic = String(new FormData(e.currentTarget).get("topic") ?? "").trim();
+            if (topic.length >= 3) router.push(`/study?topic=${encodeURIComponent(topic)}`);
+          }}
+          role="search"
+          aria-label="Ask the AI study assistant"
+          className="card mt-6 flex max-w-3xl flex-col gap-3 border-brand sm:flex-row sm:items-center"
+        >
+          <label htmlFor="ask" className="sr-only">Topic to study</label>
+          <input id="ask" name="topic" className="input flex-1" required minLength={3} maxLength={200} placeholder="Ask AI about any nursing topic, e.g. Stages of labour" autoComplete="off" />
+          <button className="btn shrink-0">Ask AI</button>
+        </form>
       </section>
 
       {!storageOk ? (

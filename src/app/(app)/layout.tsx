@@ -2,8 +2,8 @@ import Link from "next/link";
 import { NavLinks } from "./nav-links";
 
 const LINKS = [
+  { href: "/study", label: "Ask AI" },
   { href: "/", label: "Home" },
-  { href: "/study", label: "Study Generator" },
   { href: "/subjects", label: "Subjects" },
   { href: "/papers", label: "Question Papers" },
   { href: "/clinical", label: "Clinical Records" },
