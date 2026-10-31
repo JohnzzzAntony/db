@@ -46,7 +46,7 @@ Study generation can take 1–2 minutes. The API route allows up to 300 s, which
 2. Under **Variables**, add `NVIDIA_API_KEY`, `TAVILY_API_KEY` and `ACCESS_CODE`. Add `NVIDIA_MODEL` only to use a different NVIDIA model than `z-ai/glm-5.3-flash`. Saving variables redeploys the app.
 3. Under **Settings → Networking**, click **Generate Domain** to get the public link.
 
-Every push to `main` redeploys. If generation fails, the error on screen names the setting to fix; the full error is in **Deployments → View logs**, on a line starting `Anthropic API error`.
+Every push to `main` redeploys. If generation fails, the error on screen names the setting to fix; the full error is in **Deployments → View logs**, on a line starting `NVIDIA API error`, `Anthropic API error` or `Web research failed`.
 
 ## Security notes
 
