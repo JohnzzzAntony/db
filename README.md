@@ -1,103 +1,51 @@
-# Koshys Nursing Academic Intelligence
+# Koshys Nursing Study
 
-An AI-assisted study and exam-preparation platform for **Post Basic B.Sc. Nursing** students at Koshys College of Nursing, Bangalore. Every university, syllabus and requirement detail can be configured, so the platform can also serve other Indian nursing colleges.
+A study app for **Post Basic B.Sc. Nursing** students at Koshys College of Nursing, Bangalore. No database and no accounts: everything a student saves stays in their own browser.
 
-This repository contains **Phase 1–3** of the roadmap:
+## What it does
 
-| # | Module | Status |
-|---|--------|--------|
-| 1 | Academic configuration & syllabus (universities, regulations, years/semesters, subjects, units, topics, textbooks, clinical requirements) | ✅ |
-| 2 | AI study material generator (4 modes × 2/5/10/15/20 marks, source-grounded) | ✅ |
-| 3 | Previous-year paper library, AI extraction (incl. scanned papers), verification workflow, repeated-question analysis, web discovery | ✅ |
-| 4+ | Exam prediction, care plans, case studies/presentations, drug studies, mock exams, tutor, clinical record tracking | Planned. The data model is already in place for them. |
+- **Study Material Generator**: type a topic and pick a mode (University Exam, Quick Revision, Detailed Research, Viva) and marks (2–20). You get an exam-ready answer with:
+  - **diagrams** (mind maps and flowcharts)
+  - **picture links** to real labelled images on Wikimedia Commons and Google Images
+  - **flashcards** for viva practice
+  - an **evidence label** on every section, and a reminder to verify drug doses and normal values
+- **Subjects**: all 15 subjects by year, with shortcuts to study and to papers.
+- **Question Papers**: PDF papers and RGUHS collections by subject, found by web search and not verified. You can also save your own papers (PDF or photo) on your device.
+- **Clinical Records**: the Koshys clinical requirement checklist, with progress.
+- **Settings**: access code, backup download and restore, and delete-all.
 
-## Accuracy model
+## How data is stored
 
-The spec forbids invented facts and references. The platform enforces that in code; it doesn't rely on the prompt alone:
+| What | Where |
+|------|-------|
+| Study documents, saved papers, clinical progress, access code | The student's browser (IndexedDB). It never leaves the device. |
+| AI requests | Sent to `/api/study`, which calls NVIDIA with the server-side key and returns the result. Nothing is stored on the server. |
 
-- **References can't be fabricated.** The model may cite only ids (`S1`, `T2`) of library excerpts and admin-entered textbooks it was given. The server maps those ids back to database records and drops any it doesn't recognise (`src/lib/study/references.ts`).
-- **Evidence labels on every section:** *Source-supported* (backed by cited excerpts; downgraded automatically if no valid source is cited), *Standard textbook content*, or *Needs verification* (doses, ranges, guideline targets, schedules).
-- **Only verified library sources are retrieved.** Admin uploads are verified on upload; faculty uploads wait for an admin.
-- **Verified paper appearances count only papers a faculty member has verified**, and verification needs a source URL or a written note. A year with no verified paper shows as *No paper available*, never as *Not found*.
-- **Discovery stores only URLs returned by the search engine**, never URLs the model wrote. Nothing is imported automatically.
-- The seeded RGUHS affiliation and the subject list are marked **Unverified** until an admin confirms them against the current syllabus. Marks, codes and units are deliberately left blank.
+Browser data is lost if the student clears site data, uses private mode or changes device, so the app asks students to download a backup from **Settings**.
 
-## Stack
-
-Next.js 16 (App Router, server actions), TypeScript, Tailwind CSS 4, PostgreSQL + Prisma 7 (`@prisma/adapter-pg`), Claude API (`@anthropic-ai/sdk`) with structured outputs, server-side refusal fallback and web search. Study material can instead be written by an NVIDIA-hosted model (`NVIDIA_API_KEY`, default `z-ai/glm-5.3-flash`). The same reference checks apply to its output, which is validated against the schema with one corrective retry. Retrieval uses PostgreSQL full-text search (GIN index), so no separate vector store or embedding key is needed.
-
-## Getting started
+## Run locally
 
 ```bash
-cp .env.example .env              # fill DATABASE_URL, ANTHROPIC_API_KEY, SEED_ADMIN_*
-npm install                       # also runs `prisma generate`
-npx prisma migrate deploy         # or `npx prisma migrate dev` while developing
-npm run db:seed                   # RGUHS default (unverified), subjects, Koshys requirements, first admin
-npm run dev                       # http://localhost:3000
+cp .env.example .env     # set NVIDIA_API_KEY and ACCESS_CODE
+npm install
+npm run dev              # http://localhost:3000
 ```
-
-After the first sign-in as admin:
-
-1. **Admin → Universities & syllabus**: confirm the university and regulation, then add subject codes, marks, units and topics. Mark items *Verified* only after checking the official syllabus.
-2. **Admin → Reference library**: upload text-based PDFs/notes the college is licensed to use. Study documents cite only these.
-3. **Admin → Users**: promote faculty.
-4. **Admin → Paper review & discovery**: import and verify previous-year papers.
 
 ## Deploy to Vercel
 
-1. **Database:** create a Postgres database (Vercel → Storage → Neon, or any hosted Postgres) and copy its **pooled** connection string.
-2. **Import:** in Vercel choose **Add New → Project**, import `JohnzzzAntony/db`, and keep the detected Next.js settings. The `vercel-build` script runs `prisma generate`, `prisma migrate deploy` and `next build`, so migrations apply on every deploy.
-3. **Environment variables** (Project → Settings → Environment Variables):
+1. On vercel.com choose **Add New → Project**, import `JohnzzzAntony/db`, and keep the detected Next.js settings.
+2. Under **Environment Variables**, add `NVIDIA_API_KEY` and `ACCESS_CODE`. Share the access code with students only.
+3. Deploy. No database is needed.
 
-   | Name | Value |
-   |------|-------|
-   | `DATABASE_URL` | the pooled Postgres URL |
-   | `NVIDIA_API_KEY` | your NVIDIA key (study material) |
-   | `ANTHROPIC_API_KEY` | optional; needed for reading uploaded papers and web discovery |
-   | `MAX_UPLOAD_MB` | `4` (Vercel rejects request bodies over 4.5 MB) |
+Study generation can take 1–2 minutes. The API route allows up to 300 s, which needs Vercel's Fluid compute (on by default for new projects).
 
-4. **Deploy**, then seed once from your computer against the same database:
-   `DATABASE_URL="<pooled url>" SEED_ADMIN_EMAIL="you@college.in" SEED_ADMIN_PASSWORD="<12+ chars>" npm run db:seed`
-5. Sign in with that admin account and confirm the university and syllabus under **Admin**.
+## Security notes
 
-Every push to `main` redeploys. Study generation and paper extraction can run for a few minutes; the routes allow up to 300 s, which needs Vercel's Fluid compute (on by default for new projects).
-
-## Roles
-
-| Role | Can |
-|------|-----|
-| Student | Generate study material, browse subjects and papers, upload papers (unverified) |
-| Faculty | + verify/reject papers, edit paper metadata, re-run extraction, edit units/topics/textbooks, upload library sources (pending admin), web discovery |
-| Admin | + universities, regulations, subjects, clinical requirements, library verification, roles, delete papers |
+- **The NVIDIA key never reaches the browser.** Only `/api/study` uses it.
+- **Without `ACCESS_CODE`, anyone with the link can use up your AI quota.** The code is compared in constant time.
+- **The per-device limit is best effort.** `AI_HOURLY_LIMIT` is counted in memory on each server instance, so use a shared store such as Upstash Redis for a public launch.
+- **Rotate any API key that has been pasted into chats, documents or screenshots.**
 
 ## Scripts
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` / `build` / `start` | Next.js |
-| `npm test` | Unit tests plus Postgres integration tests (needs `DATABASE_URL`) |
-| `npm run typecheck` / `lint` | TypeScript / ESLint |
-| `npm run db:migrate` / `db:seed` | Apply migrations / seed defaults |
-
-## Project layout
-
-```
-prisma/schema.prisma        data model (config, library, study docs, papers, clusters)
-prisma/seed.ts              unverified defaults + Koshys clinical requirements
-src/lib/auth/               DB-backed sessions (hashed tokens, httpOnly cookies), role checks
-src/lib/ai/client.ts        structured-output Claude calls with refusal fallback and validation
-src/lib/study/              mode/marks planning, grounded generation, reference resolution
-src/lib/library/            chunking, full-text retrieval, PDF text extraction
-src/lib/papers/             extraction, clustering, repetition analysis, SSRF-safe import, discovery
-src/app/(app)/              student pages; admin/ for faculty & admin
-tests/                      unit + integration tests
-```
-
-## Production notes
-
-- **Long requests:** study generation and paper extraction run inside the request (up to a few minutes; pages export `maxDuration = 300`). On serverless hosts, make sure the plan allows this. Move to a job queue if volume grows.
-- **File storage:** papers are stored in Postgres (`bytea`, deduplicated by SHA-256, type checked by magic bytes). Move them to object storage if the archive grows large.
-- **Cost control:** each user is limited to `AI_HOURLY_LIMIT` generations per hour. Paper extraction runs at `medium` effort; study generation runs at `AI_EFFORT`.
-- **Not yet implemented:** login rate limiting / lockout (put the app behind a WAF or add a limiter before public launch), email verification, password reset.
-- **Copyright:** upload only material the college may use. Uploaded question papers are visible to all signed-in users.
-- **AI output is a study aid, not official university material.** The UI says so wherever AI content appears.
+`npm run dev` · `npm run build` · `npm run start` · `npm test` · `npm run typecheck` · `npm run lint`
