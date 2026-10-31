@@ -23,6 +23,22 @@ export function getClient(): Anthropic {
 
 export const aiEnabled = () => Boolean(env.ANTHROPIC_API_KEY);
 
+/**
+ * Turns a Claude API failure into a message that says what to fix. These are setup problems
+ * (key, model, credits), so they name the setting; Claude's error text holds no secrets.
+ */
+export function explainApiError(status: number | undefined, apiMessage: string, model: string): string {
+  const detail = apiMessage ? ` (Claude says: ${apiMessage.slice(0, 200)})` : "";
+  if (status === undefined) return "Couldn't connect to the Claude API. Please try again in a moment.";
+  if (status === 401) return "The Claude API key was rejected. Check ANTHROPIC_API_KEY on the server: it should start with sk-ant- and have no spaces or quotes.";
+  if (status === 403) return `This API key isn't allowed to use this request${detail}.`;
+  if (status === 404) return `The model "${model}" was not found. Set ANTHROPIC_MODEL to a valid model id such as claude-opus-5-5 or claude-sonnet-5-5, or remove it to use the default${detail}.`;
+  if (/credit balance/i.test(apiMessage)) return "The Claude account has no credits left. Add credits at console.anthropic.com → Billing.";
+  if (status === 400) return `Claude rejected the request${detail}. If you changed ANTHROPIC_MODEL, try claude-opus-5-5.`;
+  if (status === 529 || status >= 500) return "The Claude service is temporarily unavailable. Please try again in a minute.";
+  return `The AI service returned an error (${status})${detail}.`;
+}
+
 type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 
 /**
@@ -55,7 +71,8 @@ export async function generateStructured<S extends z.ZodType>(opts: {
     }
     if (err instanceof Anthropic.APIError) {
       console.error("Anthropic API error", err.status, err.message);
-      throw new AiGenerationError("The AI service returned an error. Please try again.");
+      const apiMessage = (err.error as { error?: { message?: string } } | undefined)?.error?.message ?? "";
+      throw new AiGenerationError(explainApiError(err.status, apiMessage, env.ANTHROPIC_MODEL));
     }
     throw err;
   }
