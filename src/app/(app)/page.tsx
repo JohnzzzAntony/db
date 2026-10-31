@@ -80,6 +80,13 @@ export default function HomePage() {
             <p className="text-sm text-muted">of Koshys requirements done</p>
             <Link href="/clinical" className="link mt-2 inline-block text-sm">Update checklist →</Link>
           </section>
+          <section className="card" aria-labelledby="tour">
+            <h2 id="tour" className="mb-2 font-semibold">How to use this site</h2>
+            <video src="/tutorial.mp4" controls preload="metadata" playsInline className="w-full rounded-lg border border-border">
+              <a href="/tutorial.mp4" className="link">Watch the 1-minute tour</a>
+            </video>
+            <p className="mt-2 text-xs text-muted">1-minute tour. The answer shown is a sample.</p>
+          </section>
           <section className="card" aria-labelledby="more">
             <h2 id="more" className="mb-2 font-semibold">More</h2>
             <ul className="space-y-1.5 text-sm">
